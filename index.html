@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>权益卡券管理</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#202638;--muted:#758096;--line:#e8ecf3;--primary:#4f63d8;--primary-soft:#eef0ff;--red:#d94343;--orange:#d97706;--yellow:#a16207;--green:#16845b;--shadow:0 8px 24px rgba(31,45,90,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,"Microsoft YaHei",system-ui,sans-serif;color:var(--text)}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;font-weight:600}.primary{background:var(--primary);color:white}.secondary{background:white;border:1px solid var(--line);color:#394158}.quiet{background:var(--primary-soft);color:var(--primary)}.danger{color:var(--red);background:#fff0f0}.wrap{max-width:1220px;margin:auto;padding:28px 24px 48px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}.brand{display:flex;gap:13px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#6578f0,#8d66dc);display:grid;place-items:center;color:white;font-size:23px;box-shadow:0 8px 18px #6578f033}.brand h1{font-size:24px;margin:0 0 4px}.brand p{margin:0;color:var(--muted);font-size:13px}.actions{display:flex;gap:9px;flex-wrap:wrap}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px}.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow)}.stat-label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px}.dot{width:8px;height:8px;border-radius:50%;background:var(--primary)}.stat-num{font-size:30px;font-weight:750;margin:9px 0 2px;letter-spacing:-.5px}.stat-sub{font-size:12px;color:var(--muted)}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}.tabs{display:flex;gap:5px;padding:14px 18px 0;border-bottom:1px solid var(--line);overflow:auto}.tab{background:transparent;color:var(--muted);border-radius:9px 9px 0 0;padding:12px 15px;white-space:nowrap;border-bottom:2px solid transparent}.tab.active{color:var(--primary);border-bottom-color:var(--primary);background:var(--primary-soft)}.filters{padding:16px 18px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}.filters input,.filters select{background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--text);min-width:140px}.filters input[type=search]{flex:1;min-width:200px}.count{margin-left:auto;align-self:center;color:var(--muted);font-size:13px;white-space:nowrap}.list{padding:8px 18px 18px}.item{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(100px,.8fr) minmax(125px,.8fr) minmax(100px,.7fr) auto;align-items:center;gap:14px;padding:17px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}.name-line{display:flex;align-items:center;gap:9px}.badge-icon{width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:#f0f2ff;display:grid;place-items:center;font-size:18px}.item-name{font-weight:700;margin-bottom:5px;overflow-wrap:anywhere}.item-detail{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.pill{display:inline-block;border-radius:7px;padding:5px 8px;font-size:12px;background:#f2f4f8;color:#566078;white-space:nowrap}.expiry{font-weight:650;font-size:13px}.remaining{font-size:12px;margin-top:5px}.soon{color:var(--red)}.week{color:var(--orange)}.month{color:var(--yellow)}.ok{color:var(--green)}.item-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.small{padding:8px 10px;font-size:12px}.empty{text-align:center;padding:55px 20px;color:var(--muted)}.empty .emoji{font-size:34px;margin-bottom:12px}.empty strong{display:block;color:var(--text);margin-bottom:7px}.footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px;padding:15px 2px}.notice{margin-top:14px;padding:12px 14px;border:1px solid #dfe4ff;background:#f1f3ff;color:#4f5d9d;border-radius:12px;font-size:12px;line-height:1.6}.modal-backdrop{position:fixed;inset:0;background:#151a2c77;display:none;align-items:center;justify-content:center;padding:18px;z-index:5}.modal-backdrop.show{display:flex}.modal{width:min(650px,100%);max-height:92vh;overflow:auto;background:white;border-radius:18px;padding:24px;box-shadow:0 24px 80px #121a3b33}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.modal h2{font-size:20px;margin:0}.close{background:#f2f4f8;color:#555;padding:7px 10px}.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}.field label{font-size:13px;color:#59637a;font-weight:600}.field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1px solid #dfe4ed;border-radius:10px;outline:none;background:white}.field input:focus,.field select:focus,.field textarea:focus{border-color:#8290f3;box-shadow:0 0 0 3px #8290f31c}.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#222a40;color:white;padding:12px 18px;border-radius:12px;box-shadow:var(--shadow);display:none;z-index:10}.toast.show{display:block}.file-label{display:inline-flex;align-items:center}.hidden{display:none!important}
+@media(max-width:850px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.item{grid-template-columns:1fr 1fr;gap:12px}.name-cell{grid-column:1/-1}.item-actions{justify-content:flex-start}.count{margin-left:0}}@media(max-width:520px){.wrap{padding:18px 12px 30px}.brand h1{font-size:21px}.stats{gap:9px}.stat{padding:14px}.stat-num{font-size:26px}.form{grid-template-columns:1fr}.field.full{grid-column:auto}.filters input,.filters select{width:100%}.item{grid-template-columns:1fr 1fr}.item-actions{grid-column:1/-1}.actions button{padding:9px 10px;font-size:13px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="logo">券</div><div><h1>权益卡券管理</h1><p>把握有效期，让每一份权益都不浪费</p></div></div>
+    <div class="actions">
+      <button class="secondary" id="importCsvBtn">导入 CSV</button>
+      <button class="secondary" id="importJsonBtn">恢复备份</button>
+      <button class="secondary" id="exportBtn">导出备份</button>
+      <button class="primary" id="addBtn">＋ 新增权益</button>
+      <input type="file" id="csvFile" accept=".csv,text/csv" class="hidden">
+      <input type="file" id="jsonFile" accept=".json,application/json" class="hidden">
+    </div>
+  </header>
+  <section class="stats">
+    <div class="stat"><div class="stat-label"><span class="dot" style="background:#d94343"></span>30 天内到期</div><div class="stat-num" id="stat30">0</div><div class="stat-sub">包含今天到期的权益</div></div>
+    <div class="stat"><div class="stat-label"><span class="dot" style="background:#d97706"></span>7 天内到期</div><div class="stat-num" id="stat7">0</div><div class="stat-sub">建议优先安排使用</div></div>
+    <div class="stat"><div class="stat-label"><span class="dot" style="background:#dc5252"></span>今日到期</div><div class="stat-num" id="stat0">0</div><div class="stat-sub">今天是最后有效日</div></div>
+    <div class="stat"><div class="stat-label"><span class="dot" style="background:#4f63d8"></span>全部权益</div><div class="stat-num" id="statAll">0</div><div class="stat-sub" id="statAllSub">当前保存的全部记录</div></div>
+  </section>
+  <main class="panel">
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="expiring">即将过期</button>
+      <button class="tab" data-tab="all">全部权益</button>
+      <button class="tab" data-tab="unused">待使用</button>
+      <button class="tab" data-tab="used">已使用</button>
+      <button class="tab" data-tab="expired">已过期</button>
+      <button class="tab" data-tab="invalid">已失效</button>
+    </nav>
+    <div class="filters">
+      <input type="search" id="search" placeholder="搜索权益名称、平台、优惠内容…">
+      <select id="platformFilter"><option value="">全部平台</option></select>
+      <select id="typeFilter"><option value="">全部类型</option><option>优惠券</option><option>会员权益</option><option>支付优惠</option><option>折扣权益</option><option>兑换权益</option><option>免费服务</option><option>其他</option></select>
+      <select id="dateFilter"><option value="">全部到期时间</option><option value="7">7 天内</option><option value="30">30 天内</option><option value="90">90 天内</option><option value="nodate">无到期日期</option></select>
+      <span class="count" id="resultCount">0 项</span>
+    </div>
+    <div class="list" id="list"></div>
+  </main>
+  <div class="notice"><strong>本地数据说明：</strong>本测试版将数据保存在当前浏览器中，不会自动上传到云端。建议定期点击「导出备份」保存 JSON 文件。导入 CSV 时请使用 UTF-8 编码；Excel 表格可另存为 CSV 后导入。不同浏览器或设备之间不会自动同步。</div>
+  <div class="footer"><span>权益卡券管理 · 静态网页测试版</span><span id="savedText">数据保存在当前浏览器</span></div>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head"><h2 id="modalTitle">新增权益</h2><button class="close" id="closeModal">✕</button></div>
+    <form id="benefitForm">
+      <div class="form">
+        <div class="field"><label for="name">权益名称 *</label><input id="name" required maxlength="120" placeholder="例如：外卖满减券"></div>
+        <div class="field"><label for="platform">所属平台 *</label><input id="platform" required list="platformOptions" placeholder="例如：支付宝、京东、银行 App"><datalist id="platformOptions"><option>支付宝</option><option>微信支付</option><option>京东</option><option>淘宝/天猫</option><option>抖音</option><option>云闪付</option><option>银行 App</option><option>翼支付</option><option>手机 Pay</option><option>线下商超</option><option>其他</option></datalist></div>
+        <div class="field"><label for="type">权益类型 *</label><select id="type" required><option>优惠券</option><option>会员权益</option><option>支付优惠</option><option>折扣权益</option><option>兑换权益</option><option>免费服务</option><option>其他</option></select></div>
+        <div class="field"><label for="status">使用状态 *</label><select id="status" required><option value="unused">待使用</option><option value="used">已使用</option><option value="invalid">已失效</option></select></div>
+        <div class="field"><label for="startDate">生效日期</label><input type="date" id="startDate"></div>
+        <div class="field"><label for="expiryDate">到期日期</label><input type="date" id="expiryDate"></div>
+        <div class="field"><label for="expiryKind">有效期类型 *</label><select id="expiryKind"><option value="date">有明确到期日</option><option value="long">长期有效</option><option value="unknown">待确认到期日期</option></select></div>
+        <div class="field"><label for="acquiredDate">获取日期</label><input type="date" id="acquiredDate"></div>
+        <div class="field full"><label for="offer">优惠内容 / 使用条件</label><input id="offer" maxlength="200" placeholder="例如：满 100 减 20，仅限指定商户"></div>
+        <div class="field full"><label for="notes">备注</label><textarea id="notes" rows="3" maxlength="1000" placeholder="补充使用限制、兑换方式等"></textarea></div>
+      </div>
+      <div class="form-actions"><button type="button" class="secondary" id="cancelModal">取消</button><button type="submit" class="primary">保存权益</button></div>
+    </form>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+(() => {
+const KEY='benefit_coupon_manager_v1';
+const $=id=>document.getElementById(id);
+let items=[], activeTab='expiring', editingId=null;
+const today=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
+const dateString=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const dayDiff=s=>{if(!s)return null;const d=new Date(s+'T00:00:00');return Math.round((d-today())/86400000)};
+const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const statusLabel=s=>({unused:'待使用',used:'已使用',expired:'已过期',invalid:'已失效'}[s]||s);
+const effectiveStatus=x=>{if(x.status==='used'||x.status==='invalid')return x.status;if(x.expiryKind==='date'&&x.expiryDate&&dayDiff(x.expiryDate)<0)return 'expired';return 'unused'};
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');items=Array.isArray(v)?v:[]}catch{items=[]}}
+function save(){localStorage.setItem(KEY,JSON.stringify(items));$('savedText').textContent='最近保存：'+new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});render()}
+function toast(s){$('toast').textContent=s;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2600)}
+function remaining(x){if(x.expiryKind==='long')return {text:'长期有效',cls:'ok'};if(x.expiryKind==='unknown'||!x.expiryDate)return {text:'待确认日期',cls:''};const n=dayDiff(x.expiryDate);if(n<0)return {text:`已过期 ${-n} 天`,cls:'soon'};if(n===0)return {text:'今天到期',cls:'soon'};if(n<=3)return {text:`剩余 ${n} 天`,cls:'soon'};if(n<=7)return {text:`剩余 ${n} 天`,cls:'week'};if(n<=30)return {text:`剩余 ${n} 天`,cls:'month'};return {text:`剩余 ${n} 天`,cls:'ok'}}
+function sortExpiry(a,b){const da=a.expiryKind==='date'&&a.expiryDate?dayDiff(a.expiryDate):999999;const db=b.expiryKind==='date'&&b.expiryDate?dayDiff(b.expiryDate):999999;return da-db}
+function renderStats(){const active=items.filter(x=>effectiveStatus(x)==='unused');const due=active.filter(x=>x.expiryKind==='date'&&x.expiryDate&&dayDiff(x.expiryDate)>=0);$('stat30').textContent=due.filter(x=>dayDiff(x.expiryDate)<=30).length;$('stat7').textContent=due.filter(x=>dayDiff(x.expiryDate)<=7).length;$('stat0').textContent=due.filter(x=>dayDiff(x.expiryDate)===0).length;$('statAll').textContent=items.length;$('statAllSub').textContent=`待使用 ${active.length} 项 · 已使用 ${items.filter(x=>x.status==='used').length} 项`}
+function refreshPlatform(){const s=$('platformFilter'),old=s.value;const vals=[...new Set(items.map(x=>x.platform).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'zh-CN'));s.innerHTML='<option value="">全部平台</option>'+vals.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');s.value=vals.includes(old)?old:''}
+function render(){renderStats();refreshPlatform();let arr=items.filter(x=>{const st=effectiveStatus(x);if(activeTab==='expiring'&&!(st==='unused'&&x.expiryKind==='date'&&x.expiryDate&&dayDiff(x.expiryDate)>=0&&dayDiff(x.expiryDate)<=30))return false;if(activeTab==='unused'&&st!=='unused')return false;if(activeTab==='used'&&st!=='used')return false;if(activeTab==='expired'&&st!=='expired')return false;if(activeTab==='invalid'&&st!=='invalid')return false;const q=$('search').value.trim().toLowerCase();if(q&&![x.name,x.platform,x.type,x.offer,x.notes].join(' ').toLowerCase().includes(q))return false;if($('platformFilter').value&&x.platform!==$('platformFilter').value)return false;if($('typeFilter').value&&x.type!==$('typeFilter').value)return false;const df=$('dateFilter').value;if(df==='nodate'&&(x.expiryKind==='date'&&x.expiryDate))return false;if(['7','30','90'].includes(df)&&!(x.expiryKind==='date'&&x.expiryDate&&dayDiff(x.expiryDate)>=0&&dayDiff(x.expiryDate)<=Number(df)))return false;return true});arr.sort(sortExpiry);$('resultCount').textContent=`${arr.length} 项`;if(!arr.length){$('list').innerHTML=`<div class="empty"><div class="emoji">🗂️</div><strong>${activeTab==='expiring'?'未来 30 天内没有即将到期的权益':'暂时没有符合条件的权益'}</strong><span>${activeTab==='expiring'?'可以切换到「全部权益」查看，或新增一项权益。':'试试调整筛选条件，或新增一项权益。'}</span><div style="margin-top:16px"><button class="quiet" id="emptyAdd">＋ 新增权益</button></div></div>`;$('emptyAdd').onclick=openAdd;return}
+$('list').innerHTML=arr.map(x=>{const st=effectiveStatus(x),r=remaining(x),icon=({'优惠券':'🎟️','会员权益':'👑','支付优惠':'💳','折扣权益':'🏷️','兑换权益':'🎁','免费服务':'✨','其他':'📌'})[x.type]||'🎟️';let date=x.expiryKind==='long'?'长期有效':x.expiryKind==='unknown'||!x.expiryDate?'待确认':x.expiryDate;return `<article class="item"><div class="name-cell"><div class="name-line"><div class="badge-icon">${icon}</div><div><div class="item-name">${escapeHtml(x.name)}</div><div class="item-detail">${escapeHtml(x.platform)} · ${escapeHtml(x.offer||x.type)}</div></div></div></div><div><span class="pill">${escapeHtml(x.type)}</span><div class="item-detail" style="margin-top:6px">${statusLabel(st)}</div></div><div><div class="expiry">${escapeHtml(date)}</div><div class="remaining ${r.cls}">${escapeHtml(r.text)}</div></div><div><div class="item-detail">获取日期</div><div style="font-size:13px;margin-top:5px">${escapeHtml(x.acquiredDate||'未记录')}</div></div><div class="item-actions">${st==='unused'?`<button class="quiet small" data-action="used" data-id="${x.id}">标记已使用</button>`:''}<button class="secondary small" data-action="edit" data-id="${x.id}">编辑</button><button class="secondary small" data-action="delete" data-id="${x.id}">删除</button></div>${x.notes?`<div class="item-detail" style="grid-column:1/-1;padding-left:47px">备注：${escapeHtml(x.notes)}</div>`:''}</article>`}).join('')}
+function openAdd(){editingId=null;$('benefitForm').reset();$('expiryKind').value='date';$('modalTitle').textContent='新增权益';$('modalBackdrop').classList.add('show')}
+function openEdit(id){const x=items.find(a=>a.id===id);if(!x)return;editingId=id;for(const k of ['name','platform','type','status','startDate','expiryDate','expiryKind','acquiredDate','offer','notes'])$(k).value=x[k]??(k==='status'?'unused':k==='type'?'优惠券':k==='expiryKind'?'date':'');$('modalTitle').textContent='编辑权益';$('modalBackdrop').classList.add('show')}
+function closeModal(){$('modalBackdrop').classList.remove('show')}
+$('addBtn').onclick=openAdd;$('closeModal').onclick=closeModal;$('cancelModal').onclick=closeModal;$('modalBackdrop').addEventListener('click',e=>{if(e.target===$('modalBackdrop'))closeModal()});
+$('expiryKind').addEventListener('change',()=>{const k=$('expiryKind').value;$('expiryDate').disabled=k!=='date';if(k!=='date')$('expiryDate').value=''});
+$('benefitForm').addEventListener('submit',e=>{e.preventDefault();const x={name:$('name').value.trim(),platform:$('platform').value.trim(),type:$('type').value,status:$('status').value,startDate:$('startDate').value,expiryDate:$('expiryDate').value,expiryKind:$('expiryKind').value,acquiredDate:$('acquiredDate').value,offer:$('offer').value.trim(),notes:$('notes').value.trim()};if(!x.name||!x.platform){toast('请填写权益名称和所属平台');return}if(x.expiryKind==='date'&&!x.expiryDate){toast('请选择到期日期，或改为长期有效/待确认');return}if(x.startDate&&x.expiryDate&&x.startDate>x.expiryDate){toast('生效日期不能晚于到期日期');return}if(editingId){items=items.map(a=>a.id===editingId?{...a,...x}:a);toast('权益已更新')}else{items.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),...x,createdAt:new Date().toISOString()});toast('权益已添加')}closeModal();save()});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;activeTab=b.dataset.tab;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t===b));render()});
+$('list').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const id=b.dataset.id,act=b.dataset.action;if(act==='edit')openEdit(id);if(act==='used'){const x=items.find(a=>a.id===id);if(x){x.status='used';x.usedAt=new Date().toISOString();save();toast('已标记为使用完成')}}if(act==='delete'&&confirm('确定删除这条权益记录吗？建议重要数据先导出备份。')){items=items.filter(a=>a.id!==id);save();toast('记录已删除')}});
+['search','platformFilter','typeFilter','dateFilter'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render));
+$('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({app:'权益卡券管理',version:1,exportedAt:new Date().toISOString(),items},null,2)],{type:'application/json;charset=utf-8'});downloadBlob(blob,`权益卡券备份_${dateString(today())}.json`);toast('备份文件已导出')};
+function downloadBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+$('importJsonBtn').onclick=()=>$('jsonFile').click();
+$('jsonFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const raw=JSON.parse(await f.text()),data=Array.isArray(raw)?raw:raw.items;if(!Array.isArray(data))throw Error('格式错误');if(!confirm(`备份中有 ${data.length} 条记录。恢复将替换当前所有记录，是否继续？建议先导出当前备份。`))return;items=data.map(x=>({...x,id:String(x.id||Date.now()+Math.random())}));save();toast('备份恢复成功')}catch(err){alert('无法读取备份文件，请确认是本工具导出的 JSON 文件。')}finally{e.target.value=''}};
+$('importCsvBtn').onclick=()=>$('csvFile').click();
+function parseCSV(text){const rows=[];let row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(c==='"'&&text[i+1]==='"'){cell+='"';i++}else if(c==='"')quoted=false;else cell+=c}else{if(c==='"')quoted=true;else if(c===','){row.push(cell);cell=''}else if(c==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell=''}else cell+=c}}if(cell.length||row.length){row.push(cell.replace(/\r$/,''));rows.push(row)}return rows}
+$('csvFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{let txt=await f.text();if(txt.charCodeAt(0)===0xFEFF)txt=txt.slice(1);const rows=parseCSV(txt).filter(r=>r.some(c=>c.trim()));if(rows.length<2)throw Error('无数据');const headers=rows.shift().map(h=>h.trim().toLowerCase());const aliases={name:['权益名称','名称','name'],platform:['所属平台','平台','platform'],type:['权益类型','类型','type'],status:['使用状态','状态','status'],startDate:['生效日期','startdate'],expiryDate:['到期日期','到期时间','expirydate'],expiryKind:['有效期类型','expiryKind'],acquiredDate:['获取日期','获取时间','acquireddate'],offer:['优惠内容','使用条件','offer'],notes:['备注','notes']};const index={};for(const [key,arr] of Object.entries(aliases))index[key]=headers.findIndex(h=>arr.map(a=>a.toLowerCase()).includes(h));if(index.name<0||index.platform<0)throw Error('至少需要“权益名称”和“所属平台”两列');const imported=rows.map(r=>{const get=k=>index[k]>=0?(r[index[k]]||'').trim():'';const kind=get('expiryKind')|| (get('expiryDate')?'date':'unknown');return {id:crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),name:get('name'),platform:get('platform'),type:get('type')||'优惠券',status:({'待使用':'unused','已使用':'used','已失效':'invalid','unused':'unused','used':'used','invalid':'invalid'})[get('status')]||'unused',startDate:get('startDate'),expiryDate:get('expiryDate'),expiryKind:['date','long','unknown'].includes(kind)?kind:(get('expiryDate')?'date':'unknown'),acquiredDate:get('acquiredDate'),offer:get('offer'),notes:get('notes')};}).filter(x=>x.name&&x.platform);if(!imported.length)throw Error('没有有效记录');if(confirm(`识别到 ${imported.length} 条记录。选择“确定”追加到现有数据；选择“取消”放弃导入。`)){items.push(...imported);save();toast(`成功导入 ${imported.length} 条记录`)} }catch(err){alert('CSV 导入失败：'+(err.message||'请检查文件格式和列名'))}finally{e.target.value=''}};
+load();render();
+})();
+</script>
+</body>
+</html>
