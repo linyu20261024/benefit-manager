@@ -20,6 +20,17 @@
 .expiry.week,.remaining.week{color:var(--orange);font-weight:750}
 @media(max-width:850px){.data-management-help{grid-template-columns:1fr}.stats .stat-label{min-width:120px}.stats .stat-sub{max-width:48%}}
 
+
+.platform-picker{position:relative;width:100%}
+.platform-picker>input{width:100%}
+.platform-suggestions{position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:20;max-height:240px;overflow:auto;background:#fff;border:1px solid #dfe4ed;border-radius:12px;box-shadow:0 12px 28px rgba(31,45,90,.14);padding:5px}
+.platform-suggestions.hidden{display:none!important}
+.platform-suggestion{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:10px 11px;text-align:left;background:#fff;color:var(--text);border-radius:8px;font-weight:500}
+.platform-suggestion:hover,.platform-suggestion:focus{background:var(--primary-soft);outline:none}
+.platform-suggestion small{font-size:11px;color:var(--muted);font-weight:400}
+.platform-suggestion-empty{padding:11px;color:var(--muted);font-size:12px;line-height:1.6}
+.platform-suggestion-empty strong{color:var(--text)}
+
 </style>
 </head>
 <body>
@@ -109,7 +120,7 @@
     <form id="benefitForm">
       <div class="form">
         <div class="field"><label for="name">权益名称 *</label><input id="name" required maxlength="120" placeholder="例如：外卖满减券"></div>
-        <div class="field"><label for="platform">所属平台 *</label><input id="platform" required list="platformOptions" placeholder="例如：支付宝、京东、银行 App"><datalist id="platformOptions"></datalist></div>
+        <div class="field"><label for="platform">所属平台 *</label><div class="platform-picker"><input id="platform" required autocomplete="off" placeholder="搜索或输入平台名称…" aria-autocomplete="list" aria-expanded="false"><div class="platform-suggestions hidden" id="platformSuggestions" role="listbox"></div></div></div>
         <div class="field"><label for="type">权益类型 *</label><select id="type" required><option>优惠券</option><option>会员权益</option><option>支付优惠</option><option>折扣权益</option><option>兑换权益</option><option>免费服务</option><option>其他</option></select></div>
         <div class="field"><label for="status">使用状态 *</label><select id="status" required><option value="unused">待使用</option><option value="used">已使用</option><option value="invalid">已失效</option></select></div>
         <div class="field"><label for="startDate">生效日期</label><input type="date" id="startDate"></div>
@@ -128,7 +139,7 @@
     <div class="modal-head"><h2 id="memberModalTitle">新增平台会员</h2><button class="close" id="closeMemberModal">✕</button></div>
     <form id="memberForm">
       <div class="form">
-        <div class="field"><label for="mPlatform">平台 *</label><input id="mPlatform" required list="memberPlatformOptions" placeholder="如：中国东方航空、IHG、万豪"><datalist id="memberPlatformOptions"></datalist></div>
+        <div class="field"><label for="mPlatform">平台 *</label><div class="platform-picker"><input id="mPlatform" required autocomplete="off" placeholder="搜索或输入平台名称…" aria-autocomplete="list" aria-expanded="false"><div class="platform-suggestions hidden" id="memberPlatformSuggestions" role="listbox"></div></div></div>
         <div class="field"><label for="mName">会员计划/名称 *</label><input id="mName" required placeholder="如：东方万里行、优悦会、万豪旅享家"></div>
         <div class="field"><label for="mKind">会员类型 *</label><select id="mKind"><option value="paid">付费/订阅会员</option><option value="tier">等级/保级会员</option><option value="free">免费会员</option></select></div>
         <div class="field"><label for="mLevel">当前等级</label><input id="mLevel" placeholder="如：金卡、白金卡、钻石会员"></div>
@@ -175,7 +186,7 @@ const today=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
 const dateString=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 function persistPlatforms(){localStorage.setItem(PLATFORM_KEY,JSON.stringify(platforms))}
 function loadExtra(){try{members=JSON.parse(localStorage.getItem(MEMBER_KEY)||'[]');if(!Array.isArray(members))members=[];members=members.filter(m=>m&&typeof m==='object')}catch(e){members=[]}try{const saved=JSON.parse(localStorage.getItem(PLATFORM_KEY)||'[]');const map=new Map();[...seedPlatforms.map(([name,category])=>({name,category,active:true})),...(Array.isArray(saved)?saved:[])].forEach(p=>{if(p&&p.name)map.set(p.name,{name:p.name,category:p.category||'其他',active:p.active!==false,custom:!!p.custom})});platforms=[...map.values()]}catch(e){platforms=seedPlatforms.map(([name,category])=>({name,category,active:true}))}persistPlatforms()}
-function syncPlatformOptions(){const vals=platforms.filter(p=>p.active!==false).map(p=>p.name).sort((a,b)=>a.localeCompare(b,'zh-CN'));['platformOptions','memberPlatformOptions'].forEach(id=>{const el=$(id);if(el)el.innerHTML=vals.map(v=>`<option value="${escapeHtml(v)}"></option>`).join('')})}
+function syncPlatformOptions(){const vals=platforms.filter(p=>p.active!==false).map(p=>p.name).sort((a,b)=>a.localeCompare(b,'zh-CN'));['platformOptions','memberPlatformOptions'].forEach(id=>{const el=$(id);if(el)el.innerHTML=vals.map(v=>`<option value="${escapeHtml(v)}"></option>`).join('')});if(window.refreshPlatformPickers)window.refreshPlatformPickers()}
 function addPlatform(name,category='其他'){name=String(name||'').trim();if(!name)return false;let p=platforms.find(x=>x.name.toLowerCase()===name.toLowerCase());if(p){p.active=true;if(category&&p.category==='其他')p.category=category}else platforms.push({name,category,active:true,custom:true});persistPlatforms();syncPlatformOptions();return true}
 const dayDiff=s=>{if(!s)return null;const d=new Date(s+'T00:00:00');return Math.round((d-today())/86400000)};
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -252,6 +263,84 @@ $('managePlatformsBtn').onclick=()=>{$('platformModalBackdrop').classList.add('s
 $('platformForm').addEventListener('submit',e=>{e.preventDefault();const name=$('newPlatformName').value.trim(),cat=$('newPlatformCategory').value;if(!name)return;if(platforms.some(p=>p.name.toLowerCase()===name.toLowerCase())){toast('该平台已存在');return}addPlatform(name,cat);$('newPlatformName').value='';$('platformManagerList').scrollIntoView({behavior:'smooth',block:'nearest'});toast('平台已添加到选项列表')});
 function renderPlatformManager(){const el=$('platformManagerList');if(!el)return;el.innerHTML='<h3 style="font-size:15px;margin:0 0 8px">平台列表</h3>'+platforms.slice().sort((a,b)=>a.name.localeCompare(b.name,'zh-CN')).map(p=>{const used=items.filter(x=>x.platform===p.name).length+members.filter(x=>x.platform===p.name).length;return `<div class="platform-row"><div><strong>${escapeHtml(p.name)}</strong><div class="item-detail">${escapeHtml(p.category||'其他')} · 关联记录 ${used} 条 · ${p.active===false?'已停用':'启用中'}</div></div><div class="item-actions"><button class="secondary small" data-platform-action="toggle" data-name="${escapeHtml(p.name)}">${p.active===false?'启用':'停用'}</button>${used===0?`<button class="danger small" data-platform-action="delete" data-name="${escapeHtml(p.name)}">删除</button>`:''}</div></div>`}).join('')}
 $('platformManagerList').addEventListener('click',e=>{const b=e.target.closest('[data-platform-action]');if(!b)return;const p=platforms.find(x=>x.name===b.dataset.name);if(!p)return;if(b.dataset.platformAction==='toggle')p.active=p.active===false;else if(b.dataset.platformAction==='delete'&&confirm('确定删除这个平台选项吗？'))platforms=platforms.filter(x=>x!==p);persistPlatforms();syncPlatformOptions();refreshPlatform();refreshMemberPlatformFilter();renderPlatformManager();renderMembers()});
+
+
+const platformPickerConfigs=[
+  {input:'platform',menu:'platformSuggestions'},
+  {input:'mPlatform',menu:'memberPlatformSuggestions'}
+];
+function activePlatformNames(){
+  const fromRegistry=platforms.filter(p=>p&&p.active!==false).map(p=>({name:String(p.name||'').trim(),category:p.category||'平台'}));
+  const extra=[...items.filter(x=>x&&x.platform),...members.filter(x=>x&&x.platform)].map(x=>({name:String(x.platform).trim(),category:'已有记录'}));
+  const map=new Map();
+  [...fromRegistry,...extra].forEach(p=>{if(p.name&&!map.has(p.name.toLowerCase()))map.set(p.name.toLowerCase(),p)});
+  return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name,'zh-CN'));
+}
+function closePlatformPicker(cfg){
+  const input=$(cfg.input),menu=$(cfg.menu);
+  if(menu)menu.classList.add('hidden');
+  if(input)input.setAttribute('aria-expanded','false');
+}
+function drawPlatformPicker(cfg){
+  const input=$(cfg.input),menu=$(cfg.menu);
+  if(!input||!menu)return;
+  const q=input.value.trim().toLocaleLowerCase();
+  const all=activePlatformNames();
+  const matches=all.filter(p=>!q||p.name.toLocaleLowerCase().includes(q)||String(p.category).toLocaleLowerCase().includes(q)).slice(0,12);
+  if(matches.length){
+    menu.innerHTML=matches.map((p,i)=>`<button type="button" class="platform-suggestion" role="option" data-platform-value="${escapeHtml(p.name)}"><span>${escapeHtml(p.name)}</span><small>${escapeHtml(p.category||'平台')}</small></button>`).join('')+
+      (all.length>12&&matches.length===12?'<div class="platform-suggestion-empty">仅显示前 12 个匹配结果，请继续输入缩小范围。</div>':'');
+  }else{
+    menu.innerHTML=`<div class="platform-suggestion-empty">没有找到匹配的平台。<br>可直接保留输入的名称，保存权益/会员时会自动加入平台库。${q?`<br><strong>当前输入：${escapeHtml(input.value.trim())}</strong>`:''}</div>`;
+  }
+  menu.classList.remove('hidden');
+  input.setAttribute('aria-expanded','true');
+}
+function initPlatformPickers(){
+  platformPickerConfigs.forEach(cfg=>{
+    const input=$(cfg.input),menu=$(cfg.menu);
+    if(!input||!menu||input.dataset.pickerReady==='1')return;
+    input.dataset.pickerReady='1';
+    input.removeAttribute('list');
+    input.addEventListener('focus',()=>drawPlatformPicker(cfg));
+    input.addEventListener('input',()=>drawPlatformPicker(cfg));
+    input.addEventListener('keydown',e=>{
+      if(e.key==='Escape'){closePlatformPicker(cfg);return}
+      if(e.key==='ArrowDown'&&!menu.classList.contains('hidden')){
+        const first=menu.querySelector('[data-platform-value]');
+        if(first){e.preventDefault();first.focus()}
+      }
+      if(e.key==='Enter'&&!menu.classList.contains('hidden')){
+        const focused=menu.querySelector('.platform-suggestion:focus')||menu.querySelector('[data-platform-value]');
+        if(focused){e.preventDefault();input.value=focused.dataset.platformValue;closePlatformPicker(cfg)}
+      }
+    });
+    menu.addEventListener('click',e=>{
+      const option=e.target.closest('[data-platform-value]');
+      if(!option)return;
+      input.value=option.dataset.platformValue;
+      closePlatformPicker(cfg);
+      input.focus();
+    });
+    menu.addEventListener('keydown',e=>{
+      if(e.key==='Escape'){closePlatformPicker(cfg);input.focus()}
+      if(e.key==='Enter'||e.key===' '){
+        const option=e.target.closest('[data-platform-value]');
+        if(option){e.preventDefault();input.value=option.dataset.platformValue;closePlatformPicker(cfg);input.focus()}
+      }
+    });
+    document.addEventListener('click',e=>{
+      if(!e.target.closest(`#${cfg.input}`)&&!e.target.closest(`#${cfg.menu}`))closePlatformPicker(cfg);
+    });
+  });
+}
+window.refreshPlatformPickers=()=>{
+  platformPickerConfigs.forEach(cfg=>{
+    const input=$(cfg.input),menu=$(cfg.menu);
+    if(input&&menu&&!menu.classList.contains('hidden'))drawPlatformPicker(cfg);
+  });
+};
+initPlatformPickers();
 
 load();loadExtra();syncPlatformOptions();render();renderMembers();
 })();
