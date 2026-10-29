@@ -41,20 +41,41 @@
 .usage-money{font-weight:700;font-variant-numeric:tabular-nums}.usage-money.positive{color:#16845b}.usage-actions{display:flex;gap:5px;justify-content:flex-end}
 @media(max-width:900px){.usage-row{grid-template-columns:1fr 1fr}.usage-row>div:first-child{grid-column:1/-1}.usage-actions{justify-content:flex-start}}
 
+
+.module-nav-spacer{min-width:12px}
+@media(max-width:720px){
+  .module-tabs{align-items:stretch!important}
+  .module-tabs .module-nav-spacer{display:none}
+  .module-tabs button{flex:1 1 auto}
+}
+\n
+.module-action-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:8px 0 16px;padding:4px 2px}
+.module-action-row h2{margin:0 0 4px;font-size:20px;font-weight:700}
+.module-action-row p{margin:0;color:var(--muted);font-size:13px}
+.module-action-row button{flex:0 0 auto}
+@media(max-width:560px){
+  .module-action-row{align-items:flex-start;flex-wrap:wrap}
+  .module-action-row button{width:100%}
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
     <div class="brand"><div class="logo">券</div><div><h1>权益卡券管理</h1><p>把握有效期，让每一份权益都不浪费</p></div></div>
-    <div class="actions">
-      <button class="secondary" id="dataManagementToggle" aria-expanded="false">数据管理 ▾</button>
-      <button class="secondary" id="managePlatformsBtn">平台管理</button>
-      <button class="secondary hidden" id="addMemberBtn">＋ 新增会员</button>
-      <button class="primary hidden" id="addUsageBtn">＋ 新增使用记录</button>
-      <button class="primary" id="addBtn">＋ 新增权益</button>
-    </div>
+
   </header>
+
+
+  <nav class="tabs module-tabs" id="moduleTabs" style="margin-bottom:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    <button class="tab active" data-module="benefits">权益卡券</button>
+    <button class="tab" data-module="memberships">平台会员体系</button>
+    <button class="tab" data-module="earnings">使用记录与收益</button>
+    <span class="module-nav-spacer" style="flex:1 1 auto"></span>
+    <button class="secondary" id="managePlatformsBtn">平台管理</button>
+    <button class="secondary" id="dataManagementToggle" aria-expanded="false">数据管理 ▾</button>
+  </nav>
   <section id="dataManagementPanel" class="data-management hidden">
     <div class="data-management-head"><strong>数据管理</strong><span>导入、备份和恢复当前浏览器中的数据</span></div>
     <div class="data-management-actions">
@@ -67,18 +88,14 @@
     </div>
     <div class="data-management-help"><div><b>CSV 模板</b><p>下载后用 Excel/WPS 编辑，每行填写一项权益；请保留首行字段名。模板只包含权益数据，不包含会员体系和平台库。保存为 CSV UTF-8 后再导入。有效期类型可填写 date（指定日期）、long（长期有效）、unknown（待确认）；状态可填写待使用、已使用、已过期、已失效。</p></div><div><b>导入 CSV</b><p>适合从 Excel、表格或其他系统导入权益列表。只导入 CSV 支持的权益字段，采用“追加”方式，不覆盖现有权益；会员体系和平台库不包含在 CSV 中。</p></div><div><b>恢复 JSON 备份</b><p>适合恢复本工具导出的完整备份，包含权益、平台会员和自定义平台。恢复会替换当前数据，恢复前建议先导出备份。旧版本 JSON 也会尽量兼容。</p></div><div><b>导出 JSON 备份</b><p>将权益、会员记录和平台库保存为一个文件，建议在更新网页或更换浏览器前备份。</p></div></div>
   </section>
+  <section id="benefitsModule">
+  <div class="module-action-row"><div><h2>权益卡券</h2><p>查看权益、使用状态与到期情况</p></div><button class="primary" id="addBtn">＋ 新增权益</button></div>
   <section class="stats">
     <div class="stat"><div class="stat-label"><span class="dot" style="background:#d94343"></span>30 天内到期</div><div class="stat-num" id="stat30">0</div><div class="stat-sub">包含今天到期的权益</div></div>
     <div class="stat"><div class="stat-label"><span class="dot" style="background:#d97706"></span>7 天内到期</div><div class="stat-num" id="stat7">0</div><div class="stat-sub">建议优先安排使用</div></div>
     <div class="stat"><div class="stat-label"><span class="dot" style="background:#dc5252"></span>今日到期</div><div class="stat-num" id="stat0">0</div><div class="stat-sub">今天是最后有效日</div></div>
     <div class="stat"><div class="stat-label"><span class="dot" style="background:#4f63d8"></span>全部权益</div><div class="stat-num" id="statAll">0</div><div class="stat-sub" id="statAllSub">当前保存的全部记录</div></div>
   </section>
-  <nav class="tabs module-tabs" id="moduleTabs" style="margin-bottom:16px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px;display:flex;gap:6px">
-    <button class="tab active" data-module="benefits">权益卡券</button>
-    <button class="tab" data-module="memberships">平台会员体系</button>
-    <button class="tab" data-module="earnings">使用记录与收益</button>
-  </nav>
-  <section id="benefitsModule">
   <main class="panel">
     <nav class="tabs" id="tabs">
       <button class="tab active" data-tab="expiring">即将过期</button>
@@ -99,6 +116,7 @@
   </main>
   </section>
   <section id="membershipsModule" class="hidden">
+    <div class="module-action-row"><div><h2>平台会员体系</h2><p>管理付费会员、订阅服务和等级会员</p></div><button class="primary" id="addMemberBtn">＋ 新增会员</button></div>
     <section class="stats" style="margin-top:0">
       <div class="stat"><div class="stat-label"><span class="dot" style="background:#d94343"></span>30 天内需续费</div><div class="stat-num" id="memberStat30">0</div><div class="stat-sub">付费会员到期提醒</div></div>
       <div class="stat"><div class="stat-label"><span class="dot" style="background:#d97706"></span>保级/升级期限临近</div><div class="stat-num" id="memberStatTier">0</div><div class="stat-sub">未来 30 天内到期</div></div>
@@ -128,6 +146,7 @@
 
 
   <section id="earningsModule" class="hidden">
+    <div class="module-action-row"><div><h2>使用记录与收益</h2><p>记录权益使用情况，查看省钱、收益和成本</p></div><button class="primary" id="addUsageBtn">＋ 新增使用记录</button></div>
     <section class="stats" style="margin-top:0">
       <div class="stat"><div class="stat-label"><span class="dot" style="background:#16845b"></span>累计省钱</div><div class="stat-num" id="earningSavings">¥0.00</div><div class="stat-sub">原价减实际支付，最低按 0 计</div></div>
       <div class="stat"><div class="stat-label"><span class="dot" style="background:#4f63d8"></span>额外收益</div><div class="stat-num" id="earningExtra">¥0.00</div><div class="stat-sub">返现、积分/里程估值及奖励</div></div>
