@@ -31,6 +31,16 @@
 .platform-suggestion-empty{padding:11px;color:var(--muted);font-size:12px;line-height:1.6}
 .platform-suggestion-empty strong{color:var(--text)}
 
+
+.usage-form-wrap{padding:16px;margin:0 0 16px;background:#f7f8fc;border:1px solid var(--line);border-radius:12px}
+.usage-preview{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:10px}
+.usage-preview span{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}
+.usage-preview strong{font-size:16px;color:#16845b}
+.usage-row{display:grid;grid-template-columns:minmax(150px,1.4fr) minmax(100px,1fr) repeat(3,minmax(90px,.7fr)) auto;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.usage-row:last-child{border-bottom:0}.usage-row .usage-title{font-weight:700;overflow-wrap:anywhere}.usage-row .usage-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.usage-money{font-weight:700;font-variant-numeric:tabular-nums}.usage-money.positive{color:#16845b}.usage-actions{display:flex;gap:5px;justify-content:flex-end}
+@media(max-width:900px){.usage-row{grid-template-columns:1fr 1fr}.usage-row>div:first-child{grid-column:1/-1}.usage-actions{justify-content:flex-start}}
+
 </style>
 </head>
 <body>
@@ -41,6 +51,7 @@
       <button class="secondary" id="dataManagementToggle" aria-expanded="false">数据管理 ▾</button>
       <button class="secondary" id="managePlatformsBtn">平台管理</button>
       <button class="secondary hidden" id="addMemberBtn">＋ 新增会员</button>
+      <button class="primary hidden" id="addUsageBtn">＋ 新增使用记录</button>
       <button class="primary" id="addBtn">＋ 新增权益</button>
     </div>
   </header>
@@ -65,6 +76,7 @@
   <nav class="tabs module-tabs" id="moduleTabs" style="margin-bottom:16px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px;display:flex;gap:6px">
     <button class="tab active" data-module="benefits">权益卡券</button>
     <button class="tab" data-module="memberships">平台会员体系</button>
+    <button class="tab" data-module="earnings">使用记录与收益</button>
   </nav>
   <section id="benefitsModule">
   <main class="panel">
@@ -113,6 +125,39 @@
   <div class="notice"><strong>本地数据说明：</strong>本测试版将权益、会员和自定义平台数据保存在当前浏览器中，不会自动上传到云端。建议定期点击「导出备份」保存 JSON 文件。导入 CSV 时请使用 UTF-8 编码；Excel 表格可另存为 CSV 后导入。不同浏览器或设备之间不会自动同步。</div>
   <div class="footer"><span>权益卡券管理 · 静态网页测试版</span><span id="savedText">数据保存在当前浏览器</span></div>
 </div>
+
+
+  <section id="earningsModule" class="hidden">
+    <section class="stats" style="margin-top:0">
+      <div class="stat"><div class="stat-label"><span class="dot" style="background:#16845b"></span>累计省钱</div><div class="stat-num" id="earningSavings">¥0.00</div><div class="stat-sub">原价减实际支付，最低按 0 计</div></div>
+      <div class="stat"><div class="stat-label"><span class="dot" style="background:#4f63d8"></span>额外收益</div><div class="stat-num" id="earningExtra">¥0.00</div><div class="stat-sub">返现、积分/里程估值及奖励</div></div>
+      <div class="stat"><div class="stat-label"><span class="dot" style="background:#d97706"></span>使用成本</div><div class="stat-num" id="earningCosts">¥0.00</div><div class="stat-sub">手续费及为使用权益额外支出的费用</div></div>
+      <div class="stat"><div class="stat-label"><span class="dot" style="background:#16845b"></span>累计净收益</div><div class="stat-num" id="earningNet">¥0.00</div><div class="stat-sub">省钱 + 额外收益 − 使用成本</div></div>
+    </section>
+    <main class="panel">
+      <div class="data-management-head"><strong>权益使用记录</strong><span>每次使用单独记账，支持同一权益多次记录</span></div>
+      <div id="usageFormWrap" class="usage-form-wrap hidden">
+        <form id="usageForm">
+          <input type="hidden" id="usageId">
+          <div class="form">
+            <div class="field"><label for="usageDate">使用日期 *</label><input type="date" id="usageDate" required></div>
+            <div class="field"><label for="usageBenefit">权益名称 *</label><input id="usageBenefit" required maxlength="120" list="usageBenefitOptions" placeholder="输入或选择已登记的权益"><datalist id="usageBenefitOptions"></datalist></div>
+            <div class="field"><label for="usagePlatform">所属平台 *</label><input id="usagePlatform" required maxlength="120" list="usagePlatformOptions" placeholder="例如：支付宝、万豪"><datalist id="usagePlatformOptions"></datalist></div>
+            <div class="field"><label for="usageOriginal">原价/原本应付金额（元）</label><input type="number" id="usageOriginal" min="0" step="0.01" value="0"></div>
+            <div class="field"><label for="usagePaid">实际支付金额（元）</label><input type="number" id="usagePaid" min="0" step="0.01" value="0"></div>
+            <div class="field"><label for="usageExtra">额外收益（元）</label><input type="number" id="usageExtra" min="0" step="0.01" value="0" placeholder="返现、积分或里程估值"></div>
+            <div class="field"><label for="usageCost">额外成本（元）</label><input type="number" id="usageCost" min="0" step="0.01" value="0" placeholder="手续费等"></div>
+            <div class="field full"><label for="usageNote">备注</label><input id="usageNote" maxlength="500" placeholder="例如：满减券、积分估值口径、订单编号等"></div>
+          </div>
+          <div class="usage-preview"><span>本次省钱 <strong id="usagePreviewSavings">¥0.00</strong></span><span>本次净收益 <strong id="usagePreviewNet">¥0.00</strong></span></div>
+          <div class="form-actions"><button type="button" class="secondary" id="cancelUsage">取消</button><button type="submit" class="primary">保存使用记录</button></div>
+        </form>
+      </div>
+      <div class="filters"><input type="search" id="usageSearch" placeholder="搜索权益名称、平台、备注…"><select id="usagePeriod"><option value="all">全部时间</option><option value="month">本月</option><option value="year">本年</option></select><span class="count" id="usageCount">0 条记录</span></div>
+      <div class="list" id="usageList"></div>
+      <div class="notice"><strong>统计口径：</strong>省钱 = max(原价 − 实际支付, 0)；净收益 = 省钱 + 额外收益 − 额外成本。积分、里程等未兑现价值可填入额外收益，但建议在备注中说明估值方式。金额按人民币元统计。</div>
+    </main>
+  </section>
 
 <div class="modal-backdrop" id="modalBackdrop">
   <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -178,7 +223,7 @@
 <div class="toast" id="toast"></div>
 <script>
 (() => {
-const KEY='benefit_coupon_manager_v1', MEMBER_KEY='benefit_memberships_v1', PLATFORM_KEY='benefit_platform_registry_v1';
+const KEY='benefit_coupon_manager_v1', MEMBER_KEY='benefit_memberships_v1', PLATFORM_KEY='benefit_platform_registry_v1', USAGE_KEY='benefit_usage_records_v1';
 const $=id=>document.getElementById(id);
 const seedPlatforms=[['中国东方航空','航空公司'],['中国南方航空','航空公司'],['中国国际航空','航空公司'],['海南航空','航空公司'],['深圳航空','航空公司'],['厦门航空','航空公司'],['四川航空','航空公司'],['春秋航空','航空公司'],['吉祥航空','航空公司'],['国泰航空','航空公司'],['新加坡航空','航空公司'],['阿联酋航空','航空公司'],['卡塔尔航空','航空公司'],['IHG 洲际酒店集团','酒店集团'],['万豪国际','酒店集团'],['希尔顿','酒店集团'],['凯悦','酒店集团'],['雅高','酒店集团'],['温德姆','酒店集团'],['锦江酒店','酒店集团'],['华住','酒店集团'],['首旅如家','酒店集团'],['携程','在线旅游平台'],['飞猪','在线旅游平台'],['同程旅行','在线旅游平台'],['去哪儿','在线旅游平台'],['Booking.com','在线旅游平台'],['Agoda','在线旅游平台'],['Expedia','在线旅游平台'],['支付宝','支付平台'],['微信支付','支付平台'],['云闪付','支付平台'],['翼支付','支付平台'],['京东支付','支付平台'],['抖音支付','支付平台'],['Apple Pay','支付平台'],['华为支付','支付平台'],['小米支付','支付平台'],['京东','电商平台'],['淘宝/天猫','电商平台'],['唯品会','电商平台'],['拼多多','电商平台'],['抖音商城','电商平台'],['中国银行','银行及信用卡'],['工商银行','银行及信用卡'],['建设银行','银行及信用卡'],['农业银行','银行及信用卡'],['招商银行','银行及信用卡'],['交通银行','银行及信用卡'],['中信银行','银行及信用卡'],['平安银行','银行及信用卡'],['浦发银行','银行及信用卡'],['广发银行','银行及信用卡'],['山姆会员商店','商超及生活服务'],['Costco','商超及生活服务'],['盒马','商超及生活服务'],['沃尔玛','商超及生活服务'],['美团','商超及生活服务'],['饿了么','商超及生活服务']];
 let items=[], members=[], platforms=[], activeTab='expiring', editingId=null, editingMemberId=null, activeModule='benefits', activeMemberTab='all';
@@ -212,10 +257,10 @@ $('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if
 $('list').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const id=b.dataset.id,act=b.dataset.action;if(act==='edit')openEdit(id);if(act==='used'){const x=items.find(a=>a.id===id);if(x){x.status='used';x.usedAt=new Date().toISOString();save();toast('已标记为使用完成')}}if(act==='delete'&&confirm('确定删除这条权益记录吗？建议重要数据先导出备份。')){items=items.filter(a=>a.id!==id);save();toast('记录已删除')}});
 ['search','platformFilter','typeFilter','dateFilter'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render));
 $('dataManagementToggle').onclick=()=>{const panel=$('dataManagementPanel'),show=panel.classList.contains('hidden');panel.classList.toggle('hidden',!show);$('dataManagementToggle').setAttribute('aria-expanded',String(show));$('dataManagementToggle').textContent=show?'数据管理 ▴':'数据管理 ▾'};
-$('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({app:'权益卡券管理',version:2,exportedAt:new Date().toISOString(),items,members,platforms},null,2)],{type:'application/json;charset=utf-8'});downloadBlob(blob,`权益卡券备份_${dateString(today())}.json`);toast('备份文件已导出')};
+$('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({app:'权益卡券管理',version:3,exportedAt:new Date().toISOString(),items,members,platforms,usageRecords},null,2)],{type:'application/json;charset=utf-8'});downloadBlob(blob,`权益卡券备份_${dateString(today())}.json`);toast('备份文件已导出')};
 function downloadBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 $('importJsonBtn').onclick=()=>$('jsonFile').click();
-$('jsonFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const raw=JSON.parse(await f.text()),data=Array.isArray(raw)?raw:raw.items;if(!Array.isArray(data))throw Error('格式错误');if(!confirm(`备份中有 ${data.length} 条记录。恢复将替换当前所有记录，是否继续？建议先导出当前备份。`))return;items=data.map(normalizeLegacyItem);members=raw&&Array.isArray(raw.members)?raw.members.map(x=>({...x,id:String(x.id||Date.now()+Math.random())})):[];platforms=[...seedPlatforms.map(([name,category])=>({name,category,active:true})),...(raw&&Array.isArray(raw.platforms)?raw.platforms:[])];localStorage.setItem(MEMBER_KEY,JSON.stringify(members));persistPlatforms();syncPlatformOptions();save();renderMembers();toast('备份恢复成功')}catch(err){alert('无法读取备份文件，请确认是本工具导出的 JSON 文件。')}finally{e.target.value=''}};
+$('jsonFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const raw=JSON.parse(await f.text()),data=Array.isArray(raw)?raw:raw.items;if(!Array.isArray(data))throw Error('格式错误');if(!confirm(`备份中有 ${data.length} 条记录。恢复将替换当前所有记录，是否继续？建议先导出当前备份。`))return;items=data.map(normalizeLegacyItem);members=raw&&Array.isArray(raw.members)?raw.members.map(x=>({...x,id:String(x.id||Date.now()+Math.random())})):[];usageRecords=raw&&Array.isArray(raw.usageRecords)?raw.usageRecords.filter(x=>x&&typeof x==='object'):[];persistUsageRecords();platforms=[...seedPlatforms.map(([name,category])=>({name,category,active:true})),...(raw&&Array.isArray(raw.platforms)?raw.platforms:[])];localStorage.setItem(MEMBER_KEY,JSON.stringify(members));persistPlatforms();syncPlatformOptions();save();renderMembers();toast('备份恢复成功')}catch(err){alert('无法读取备份文件，请确认是本工具导出的 JSON 文件。')}finally{e.target.value=''}};
 $('downloadCsvTemplateBtn').onclick=()=>{const headers=['权益名称','所属平台','权益类型','使用状态','生效日期','到期日期','有效期类型','获取日期','优惠内容','备注'];const csv='\\uFEFF'+headers.map(csvEscape).join(',')+'\\r\\n';downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),`权益批量导入模板_${dateString(today())}.csv`);toast('CSV 模板已下载')};
 function csvEscape(v){const s=String(v??'');return /[",\\r\\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
 $('importCsvBtn').onclick=()=>$('csvFile').click();
@@ -258,7 +303,7 @@ $('memberTabs').addEventListener('click',e=>{const b=e.target.closest('[data-mta
 ['memberSearch','memberPlatformFilter','memberKindFilter'].forEach(id=>$(id).addEventListener(id==='memberSearch'?'input':'change',renderMembers));
 $('memberList').addEventListener('click',e=>{const b=e.target.closest('[data-member-action]');if(!b)return;const id=b.dataset.id,act=b.dataset.memberAction,m=members.find(x=>x.id===id);if(!m)return;if(act==='edit')openEditMember(id);if(act==='delete'&&confirm('确定删除这条会员记录吗？')){members=members.filter(x=>x.id!==id);localStorage.setItem(MEMBER_KEY,JSON.stringify(members));renderMembers();toast('会员记录已删除')}if(act==='renew'){if(!confirm('记录一次续费/续期？将按续费周期更新有效期（如无固定周期，则只允许手动更新日期）。'))return;let next='';if(m.cycle==='yearly'&&m.endDate)next=addMonths(m.endDate,12);else if(m.cycle==='quarterly'&&m.endDate)next=addMonths(m.endDate,3);else if(m.cycle==='monthly'&&m.endDate)next=addMonths(m.endDate,1);else next=prompt('请输入续费后的到期日期（YYYY-MM-DD）',m.endDate||'');if(next){if(!/^\d{4}-\d{2}-\d{2}$/.test(next)){alert('日期格式应为 YYYY-MM-DD');return}m.startDate=m.endDate||m.startDate;m.endDate=next;m.status='active';localStorage.setItem(MEMBER_KEY,JSON.stringify(members));renderMembers();toast('已更新会员有效期')}}});
 function addMonths(date,n){const d=new Date(date+'T12:00:00');const day=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+n);const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(day,last));return dateString(d)}
-$('moduleTabs').addEventListener('click',e=>{const b=e.target.closest('[data-module]');if(!b)return;activeModule=b.dataset.module;document.querySelectorAll('#moduleTabs [data-module]').forEach(t=>t.classList.toggle('active',t===b));$('benefitsModule').classList.toggle('hidden',activeModule!=='benefits');$('membershipsModule').classList.toggle('hidden',activeModule!=='memberships');$('addBtn').classList.toggle('hidden',activeModule!=='benefits');$('addMemberBtn').classList.toggle('hidden',activeModule!=='memberships');render();renderMembers()});
+$('moduleTabs').addEventListener('click',e=>{const b=e.target.closest('[data-module]');if(!b)return;activeModule=b.dataset.module;document.querySelectorAll('#moduleTabs [data-module]').forEach(t=>t.classList.toggle('active',t===b));$('benefitsModule').classList.toggle('hidden',activeModule!=='benefits');$('membershipsModule').classList.toggle('hidden',activeModule!=='memberships');$('earningsModule').classList.toggle('hidden',activeModule!=='earnings');$('addBtn').classList.toggle('hidden',activeModule!=='benefits');$('addMemberBtn').classList.toggle('hidden',activeModule!=='memberships');$('addUsageBtn').classList.toggle('hidden',activeModule!=='earnings');render();renderMembers();renderUsageRecords()});
 $('managePlatformsBtn').onclick=()=>{$('platformModalBackdrop').classList.add('show');renderPlatformManager()};$('closePlatformModal').onclick=()=>$('platformModalBackdrop').classList.remove('show');$('cancelPlatformModal').onclick=()=>$('platformModalBackdrop').classList.remove('show');$('platformModalBackdrop').addEventListener('click',e=>{if(e.target===$('platformModalBackdrop'))$('platformModalBackdrop').classList.remove('show')});
 $('platformForm').addEventListener('submit',e=>{e.preventDefault();const name=$('newPlatformName').value.trim(),cat=$('newPlatformCategory').value;if(!name)return;if(platforms.some(p=>p.name.toLowerCase()===name.toLowerCase())){toast('该平台已存在');return}addPlatform(name,cat);$('newPlatformName').value='';$('platformManagerList').scrollIntoView({behavior:'smooth',block:'nearest'});toast('平台已添加到选项列表')});
 function renderPlatformManager(){const el=$('platformManagerList');if(!el)return;el.innerHTML='<h3 style="font-size:15px;margin:0 0 8px">平台列表</h3>'+platforms.slice().sort((a,b)=>a.name.localeCompare(b.name,'zh-CN')).map(p=>{const used=items.filter(x=>x.platform===p.name).length+members.filter(x=>x.platform===p.name).length;return `<div class="platform-row"><div><strong>${escapeHtml(p.name)}</strong><div class="item-detail">${escapeHtml(p.category||'其他')} · 关联记录 ${used} 条 · ${p.active===false?'已停用':'启用中'}</div></div><div class="item-actions"><button class="secondary small" data-platform-action="toggle" data-name="${escapeHtml(p.name)}">${p.active===false?'启用':'停用'}</button>${used===0?`<button class="danger small" data-platform-action="delete" data-name="${escapeHtml(p.name)}">删除</button>`:''}</div></div>`}).join('')}
@@ -342,7 +387,52 @@ window.refreshPlatformPickers=()=>{
 };
 initPlatformPickers();
 
-load();loadExtra();syncPlatformOptions();render();renderMembers();
+let usageRecords=[];
+function money(v){return '¥'+(Number(v)||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function usageSavings(r){return Math.max(0,(Number(r.originalAmount)||0)-(Number(r.paidAmount)||0))}
+function usageNet(r){return usageSavings(r)+(Number(r.extraIncome)||0)-(Number(r.extraCost)||0)}
+function loadUsageRecords(){try{const v=JSON.parse(localStorage.getItem(USAGE_KEY)||'[]');usageRecords=Array.isArray(v)?v.filter(x=>x&&typeof x==='object'):[]}catch(e){usageRecords=[]}}
+function persistUsageRecords(){localStorage.setItem(USAGE_KEY,JSON.stringify(usageRecords))}
+function updateUsagePreview(){const r={originalAmount:$('usageOriginal').value,paidAmount:$('usagePaid').value,extraIncome:$('usageExtra').value,extraCost:$('usageCost').value};$('usagePreviewSavings').textContent=money(usageSavings(r));$('usagePreviewNet').textContent=money(usageNet(r))}
+function fillUsageOptions(){
+ const bn=$('usageBenefitOptions'),pn=$('usagePlatformOptions');
+ if(bn)bn.innerHTML=[...new Set(items.map(x=>x.name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'zh-CN')).map(v=>`<option value="${escapeHtml(v)}"></option>`).join('');
+ if(pn)pn.innerHTML=activePlatformNames().map(p=>`<option value="${escapeHtml(p.name)}"></option>`).join('');
+}
+function openUsageForm(record){
+ $('usageForm').reset();$('usageId').value='';$('usageDate').value=dateString(today());$('usageOriginal').value='0';$('usagePaid').value='0';$('usageExtra').value='0';$('usageCost').value='0';
+ if(record){$('usageId').value=record.id;$('usageDate').value=record.date||dateString(today());$('usageBenefit').value=record.benefitName||'';$('usagePlatform').value=record.platform||'';$('usageOriginal').value=record.originalAmount??0;$('usagePaid').value=record.paidAmount??0;$('usageExtra').value=record.extraIncome??0;$('usageCost').value=record.extraCost??0;$('usageNote').value=record.note||''}
+ fillUsageOptions();updateUsagePreview();$('usageFormWrap').classList.remove('hidden');$('usageDate').focus();
+}
+function closeUsageForm(){$('usageFormWrap').classList.add('hidden');$('usageForm').reset()}
+function renderUsageRecords(){
+ if(!$('usageList'))return;
+ const total={savings:0,extra:0,cost:0,net:0};
+ usageRecords.forEach(r=>{total.savings+=usageSavings(r);total.extra+=Number(r.extraIncome)||0;total.cost+=Number(r.extraCost)||0;total.net+=usageNet(r)});
+ $('earningSavings').textContent=money(total.savings);$('earningExtra').textContent=money(total.extra);$('earningCosts').textContent=money(total.cost);$('earningNet').textContent=money(total.net);
+ const q=$('usageSearch').value.trim().toLowerCase(),period=$('usagePeriod').value,now=today(),ym=dateString(now).slice(0,7),year=String(now.getFullYear());
+ let arr=usageRecords.filter(r=>{if(q&&![r.benefitName,r.platform,r.note].join(' ').toLowerCase().includes(q))return false;if(period==='month'&&String(r.date||'').slice(0,7)!==ym)return false;if(period==='year'&&String(r.date||'').slice(0,4)!==year)return false;return true}).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+ $('usageCount').textContent=`${arr.length} 条记录`;
+ if(!arr.length){$('usageList').innerHTML='<div class="empty"><div class="emoji">💰</div><strong>还没有使用记录</strong><span>记录一次权益使用，就能开始累计省钱和净收益。</span><div style="margin-top:16px"><button class="quiet" id="emptyAddUsage">＋ 新增使用记录</button></div></div>';const b=$('emptyAddUsage');if(b)b.onclick=()=>openUsageForm();return}
+ $('usageList').innerHTML=arr.map(r=>`<article class="usage-row"><div><div class="usage-title">${escapeHtml(r.benefitName||'未命名权益')}</div><div class="usage-meta">${escapeHtml(r.platform||'未填写平台')} · ${escapeHtml(r.date||'未填写日期')}</div>${r.note?`<div class="usage-meta">${escapeHtml(r.note)}</div>`:''}</div><div><div class="usage-meta">原价 / 实付</div><div class="usage-money">${money(r.originalAmount)} / ${money(r.paidAmount)}</div></div><div><div class="usage-meta">省钱</div><div class="usage-money positive">${money(usageSavings(r))}</div></div><div><div class="usage-meta">额外收益</div><div class="usage-money">${money(r.extraIncome)}</div></div><div><div class="usage-meta">净收益</div><div class="usage-money ${usageNet(r)>=0?'positive':''}">${money(usageNet(r))}</div></div><div class="usage-actions"><button class="secondary small" data-usage-action="edit" data-id="${escapeHtml(r.id)}">编辑</button><button class="secondary small" data-usage-action="delete" data-id="${escapeHtml(r.id)}">删除</button></div></article>`).join('');
+}
+$('addUsageBtn').onclick=()=>openUsageForm();
+$('cancelUsage').onclick=closeUsageForm;
+['usageOriginal','usagePaid','usageExtra','usageCost'].forEach(id=>$(id).addEventListener('input',updateUsagePreview));
+$('usageBenefit').addEventListener('change',()=>{const item=items.find(x=>x.name===$('usageBenefit').value);if(item&&!$('usagePlatform').value)$('usagePlatform').value=item.platform||''});
+$('usageForm').addEventListener('submit',e=>{
+ e.preventDefault();const id=$('usageId').value;
+ const r={id:id||((crypto.randomUUID&&crypto.randomUUID())||String(Date.now())+Math.random()),date:$('usageDate').value,benefitName:$('usageBenefit').value.trim(),platform:$('usagePlatform').value.trim(),originalAmount:Number($('usageOriginal').value)||0,paidAmount:Number($('usagePaid').value)||0,extraIncome:Number($('usageExtra').value)||0,extraCost:Number($('usageCost').value)||0,note:$('usageNote').value.trim()};
+ if(!r.date||!r.benefitName||!r.platform){toast('请填写使用日期、权益名称和所属平台');return}
+ if([r.originalAmount,r.paidAmount,r.extraIncome,r.extraCost].some(n=>!Number.isFinite(n)||n<0)){toast('金额不能为负数');return}
+ addPlatform(r.platform,'其他');if(id)usageRecords=usageRecords.map(x=>x.id===id?r:x);else usageRecords.push(r);
+ persistUsageRecords();syncPlatformOptions();closeUsageForm();renderUsageRecords();toast(id?'使用记录已更新':'使用记录已保存');
+});
+$('usageList').addEventListener('click',e=>{const b=e.target.closest('[data-usage-action]');if(!b)return;const r=usageRecords.find(x=>x.id===b.dataset.id);if(!r)return;if(b.dataset.usageAction==='edit')openUsageForm(r);if(b.dataset.usageAction==='delete'&&confirm('确定删除这条使用记录吗？')){usageRecords=usageRecords.filter(x=>x.id!==r.id);persistUsageRecords();renderUsageRecords();toast('使用记录已删除')}});
+$('usageSearch').addEventListener('input',renderUsageRecords);$('usagePeriod').addEventListener('change',renderUsageRecords);
+
+
+load();loadExtra();loadUsageRecords();syncPlatformOptions();render();renderMembers();renderUsageRecords();
 })();
 </script>
 </body>
