@@ -139,6 +139,7 @@
       <div id="usageFormWrap" class="usage-form-wrap hidden">
         <form id="usageForm">
           <input type="hidden" id="usageId">
+          <input type="hidden" id="usageBenefitId"><input type="hidden" id="usageMarkUsed" value="0">
           <div class="form">
             <div class="field"><label for="usageDate">使用日期 *</label><input type="date" id="usageDate" required></div>
             <div class="field"><label for="usageBenefit">权益名称 *</label><input id="usageBenefit" required maxlength="120" list="usageBenefitOptions" placeholder="输入或选择已登记的权益"><datalist id="usageBenefitOptions"></datalist></div>
@@ -254,7 +255,7 @@ $('addBtn').onclick=openAdd;$('closeModal').onclick=closeModal;$('cancelModal').
 $('expiryKind').addEventListener('change',()=>{const k=$('expiryKind').value;$('expiryDate').disabled=k!=='date';if(k!=='date')$('expiryDate').value=''});
 $('benefitForm').addEventListener('submit',e=>{e.preventDefault();const x={name:$('name').value.trim(),platform:$('platform').value.trim(),type:$('type').value,status:$('status').value,startDate:$('startDate').value,expiryDate:$('expiryDate').value,expiryKind:$('expiryKind').value,acquiredDate:$('acquiredDate').value,offer:$('offer').value.trim(),notes:$('notes').value.trim()};if(!x.name||!x.platform){toast('请填写权益名称和所属平台');return}if(x.expiryKind==='date'&&!x.expiryDate){toast('请选择到期日期，或改为长期有效/待确认');return}if(x.startDate&&x.expiryDate&&x.startDate>x.expiryDate){toast('生效日期不能晚于到期日期');return}addPlatform(x.platform, '其他');if(editingId){items=items.map(a=>a.id===editingId?{...a,...x}:a);toast('权益已更新')}else{items.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),...x,createdAt:new Date().toISOString()});toast('权益已添加')}closeModal();save()});
 $('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;activeTab=b.dataset.tab;document.querySelectorAll('#tabs .tab').forEach(t=>t.classList.toggle('active',t===b));render()});
-$('list').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const id=b.dataset.id,act=b.dataset.action;if(act==='edit')openEdit(id);if(act==='used'){const x=items.find(a=>a.id===id);if(x){x.status='used';x.usedAt=new Date().toISOString();save();toast('已标记为使用完成')}}if(act==='delete'&&confirm('确定删除这条权益记录吗？建议重要数据先导出备份。')){items=items.filter(a=>a.id!==id);save();toast('记录已删除')}});
+$('list').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const id=b.dataset.id,act=b.dataset.action;if(act==='edit')openEdit(id);if(act==='used'){const x=items.find(a=>a.id===id);if(x){document.querySelector('#moduleTabs [data-module="earnings"]').click();openUsageForm(null,x)}}if(act==='delete'&&confirm('确定删除这条权益记录吗？建议重要数据先导出备份。')){items=items.filter(a=>a.id!==id);save();toast('记录已删除')}});
 ['search','platformFilter','typeFilter','dateFilter'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render));
 $('dataManagementToggle').onclick=()=>{const panel=$('dataManagementPanel'),show=panel.classList.contains('hidden');panel.classList.toggle('hidden',!show);$('dataManagementToggle').setAttribute('aria-expanded',String(show));$('dataManagementToggle').textContent=show?'数据管理 ▴':'数据管理 ▾'};
 $('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({app:'权益卡券管理',version:3,exportedAt:new Date().toISOString(),items,members,platforms,usageRecords},null,2)],{type:'application/json;charset=utf-8'});downloadBlob(blob,`权益卡券备份_${dateString(today())}.json`);toast('备份文件已导出')};
@@ -399,12 +400,19 @@ function fillUsageOptions(){
  if(bn)bn.innerHTML=[...new Set(items.map(x=>x.name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'zh-CN')).map(v=>`<option value="${escapeHtml(v)}"></option>`).join('');
  if(pn)pn.innerHTML=activePlatformNames().map(p=>`<option value="${escapeHtml(p.name)}"></option>`).join('');
 }
-function openUsageForm(record){
- $('usageForm').reset();$('usageId').value='';$('usageDate').value=dateString(today());$('usageOriginal').value='0';$('usagePaid').value='0';$('usageExtra').value='0';$('usageCost').value='0';
- if(record){$('usageId').value=record.id;$('usageDate').value=record.date||dateString(today());$('usageBenefit').value=record.benefitName||'';$('usagePlatform').value=record.platform||'';$('usageOriginal').value=record.originalAmount??0;$('usagePaid').value=record.paidAmount??0;$('usageExtra').value=record.extraIncome??0;$('usageCost').value=record.extraCost??0;$('usageNote').value=record.note||''}
+function openUsageForm(record, benefitItem){
+ $('usageForm').reset();$('usageId').value='';$('usageBenefitId').value='';$('usageMarkUsed').value='0';$('usageDate').value=dateString(today());$('usageOriginal').value='0';$('usagePaid').value='0';$('usageExtra').value='0';$('usageCost').value='0';
+ if(record){
+  $('usageId').value=record.id;$('usageDate').value=record.date||dateString(today());$('usageBenefit').value=record.benefitName||'';$('usagePlatform').value=record.platform||'';$('usageOriginal').value=record.originalAmount??0;$('usagePaid').value=record.paidAmount??0;$('usageExtra').value=record.extraIncome??0;$('usageCost').value=record.extraCost??0;$('usageNote').value=record.note||'';$('usageBenefitId').value=record.benefitId||'';
+ }else if(benefitItem){
+  $('usageBenefit').value=benefitItem.name||'';$('usagePlatform').value=benefitItem.platform||'';$('usageBenefitId').value=benefitItem.id;$('usageMarkUsed').value='1';
+  $('usageNote').value='由卡券“标记已使用”操作创建';
+  const title=$('usageFormWrap').querySelector('form');
+  if(title){let tip=$('usageMarkUsedTip');if(!tip){tip=document.createElement('div');tip.id='usageMarkUsedTip';tip.className='notice';title.prepend(tip)}tip.textContent='正在登记“'+(benefitItem.name||'当前权益')+'”的使用情况。保存后会同步将该卡券标记为已使用；取消则不会更改卡券状态。'}
+ }
  fillUsageOptions();updateUsagePreview();$('usageFormWrap').classList.remove('hidden');$('usageDate').focus();
 }
-function closeUsageForm(){$('usageFormWrap').classList.add('hidden');$('usageForm').reset()}
+function closeUsageForm(){$('usageFormWrap').classList.add('hidden');$('usageForm').reset();$('usageBenefitId').value='';$('usageMarkUsed').value='0';const tip=$('usageMarkUsedTip');if(tip)tip.remove()}
 function renderUsageRecords(){
  if(!$('usageList'))return;
  const total={savings:0,extra:0,cost:0,net:0};
@@ -421,12 +429,21 @@ $('cancelUsage').onclick=closeUsageForm;
 ['usageOriginal','usagePaid','usageExtra','usageCost'].forEach(id=>$(id).addEventListener('input',updateUsagePreview));
 $('usageBenefit').addEventListener('change',()=>{const item=items.find(x=>x.name===$('usageBenefit').value);if(item&&!$('usagePlatform').value)$('usagePlatform').value=item.platform||''});
 $('usageForm').addEventListener('submit',e=>{
- e.preventDefault();const id=$('usageId').value;
- const r={id:id||((crypto.randomUUID&&crypto.randomUUID())||String(Date.now())+Math.random()),date:$('usageDate').value,benefitName:$('usageBenefit').value.trim(),platform:$('usagePlatform').value.trim(),originalAmount:Number($('usageOriginal').value)||0,paidAmount:Number($('usagePaid').value)||0,extraIncome:Number($('usageExtra').value)||0,extraCost:Number($('usageCost').value)||0,note:$('usageNote').value.trim()};
+ e.preventDefault();
+ const id=$('usageId').value, linkedBenefitId=$('usageBenefitId').value, markBenefitUsed=$('usageMarkUsed').value==='1';
+ const r={id:id||((crypto.randomUUID&&crypto.randomUUID())||String(Date.now())+Math.random()),date:$('usageDate').value,benefitName:$('usageBenefit').value.trim(),platform:$('usagePlatform').value.trim(),originalAmount:Number($('usageOriginal').value)||0,paidAmount:Number($('usagePaid').value)||0,extraIncome:Number($('usageExtra').value)||0,extraCost:Number($('usageCost').value)||0,note:$('usageNote').value.trim(),benefitId:linkedBenefitId||''};
  if(!r.date||!r.benefitName||!r.platform){toast('请填写使用日期、权益名称和所属平台');return}
  if([r.originalAmount,r.paidAmount,r.extraIncome,r.extraCost].some(n=>!Number.isFinite(n)||n<0)){toast('金额不能为负数');return}
- addPlatform(r.platform,'其他');if(id)usageRecords=usageRecords.map(x=>x.id===id?r:x);else usageRecords.push(r);
- persistUsageRecords();syncPlatformOptions();closeUsageForm();renderUsageRecords();toast(id?'使用记录已更新':'使用记录已保存');
+ addPlatform(r.platform,'其他');
+ if(id)usageRecords=usageRecords.map(x=>x.id===id?r:x);else usageRecords.push(r);
+ persistUsageRecords();
+ let marked=false;
+ if(linkedBenefitId&&(markBenefitUsed||!id)){
+  const benefit=items.find(x=>String(x.id)===String(linkedBenefitId));
+  if(benefit&&benefit.status!=='used'){benefit.status='used';benefit.usedAt=new Date().toISOString();save();marked=true}
+ }
+ syncPlatformOptions();closeUsageForm();renderUsageRecords();
+ toast(marked?'使用记录已保存，卡券已标记为已使用':(id?'使用记录已更新':'使用记录已保存'));
 });
 $('usageList').addEventListener('click',e=>{const b=e.target.closest('[data-usage-action]');if(!b)return;const r=usageRecords.find(x=>x.id===b.dataset.id);if(!r)return;if(b.dataset.usageAction==='edit')openUsageForm(r);if(b.dataset.usageAction==='delete'&&confirm('确定删除这条使用记录吗？')){usageRecords=usageRecords.filter(x=>x.id!==r.id);persistUsageRecords();renderUsageRecords();toast('使用记录已删除')}});
 $('usageSearch').addEventListener('input',renderUsageRecords);$('usagePeriod').addEventListener('change',renderUsageRecords);
